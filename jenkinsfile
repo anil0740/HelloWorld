@@ -1,0 +1,37 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/anil0740/HelloWorld.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t helloworld .'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                    docker rm -f helloworld || true
+
+                    docker run -d \
+                    --name helloworld \
+                    -p 8080:8080 \
+                    helloworld
+                '''
+            }
+        }
+    }
+}
